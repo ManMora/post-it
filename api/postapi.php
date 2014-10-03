@@ -17,10 +17,10 @@ function openDB($route,$username,$password,$db){
 function isLoggedIn(){
 
     if(!isset($POST['username'])){
-
         $con = openDB("localhost","root","","postdb");
-        $mail = "manu.mora.24@gmail.com";
-        var_dump(getSingle($con,28));
+        $mail = "antonioesperc@gmail.com";
+        $name = "Antonio Esper";
+        $password = "1994aec";
     }else{
 
     http_response_code(403);
@@ -87,6 +87,34 @@ function getAllPosts($con,$mail){
 
 }
 
+function createUser($con, $mail, $name, $password){
+    $password = md5($password);
+    $query = "INSERT INTO user VALUES('".$name."','".$password."','".$mail."',1)";
+    $result = mysqli_query($con, $query);
+}
 
+function deleteUser($con, $mail){
+    $query = "UPDATE user SET Active=0 WHERE MAIL = '". $mail ."'";
+    $result = mysqli_query($con, $query);
+    //var_dump($query);
+    return $result;
+}
+
+function updateUser($con, $mail, $name, $password){
+    $password = md5($password);
+    $query = "UPDATE user SET Nombre = '" . $name . "', Password = '" . $password . "' WHERE Mail = '". $mail . "'";
+    $result = mysqli_query($con, $query);
+    return $result;
+}
+
+function readUser($con, $mail){
+    $query = "SELECT * FROM user WHERE MAIL = '".$mail."'";
+    $result = mysqli_query($con, $query);
+    while ($row = mysqli_fetch_array($result)){
+        $user['nombre'] = $row['Nombre'];
+        $user['mail'] = $row['Mail'];
+    }
+    return $user;
+}
 
 ?>
