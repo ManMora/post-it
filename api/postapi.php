@@ -16,7 +16,7 @@ function openDB($route,$username,$password,$db){
 
 function isLoggedIn(){
 
-    if(!isset($POST['username'])){
+    if(!isset($_POST['username'])){
         $con = openDB("localhost","root","","postdb");
         $mail = "antonioesperc@gmail.com";
         $name = "Antonio Esper";
