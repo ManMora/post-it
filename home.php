@@ -1,5 +1,7 @@
 <?php
-	include("header.php");
+    include("header.php");
+    isLoggedIn();
+    //session_destroy();
 ?>
    <div class="postCollection">
         <div class="postWrapper">
