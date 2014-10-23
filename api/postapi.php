@@ -16,14 +16,31 @@ function openDB($route,$username,$password,$db){
 
 function isLoggedIn(){
 
-    if(!isset($_POST['username'])){
-        $con = openDB("localhost","root","","postdb");
-        $mail = "antonioesperc@gmail.com";
-        $name = "Antonio Esper";
-        $password = "1994aec";
+    $con = openDB("localhost","root","","postdb");
+    $mail = $_POST['username'];
+
+    if(isset($_POST['postoperation']) && $_POST['postoperation'] == '1'){
+    if(isset($_POST['username'])){
+        if(isset($_POST['postid']) && $_POST['postid'] != '' ){
+            $id = $_POST['postid'];
+            updatePost($con,$id,$_POST['posttitle'],$_POST['postcontent']);
+            echo $id;
+        }else{
+           echo  createPost($con,$mail,$_POST['posttitle'],$_POST['postcontent']);
+
+            http_response_code(200);
+
+        }
+
+        }else{
+
+        http_response_code(403);
+
+        }
+
     }else{
 
-    http_response_code(403);
+        var_dump(getAllPosts($con,$mail));
 
     }
     closeDB($con);
@@ -37,19 +54,20 @@ function closeDB($db){
 }
 
 function updatePost($con,$id,$title,$content){
-
+    $title = preg_quote($title, '/');
+    $content = preg_quote($content, '/');
     $query = "UPDATE post SET Title='".$title."', Content='".$content."' WHERE ID = ".$id;
-    var_dump($query);
+    //var_dump($query);
     $result = mysqli_query($con,$query);
     return $result;
 
 }
 
 function createPost($con,$mail,$title,$content){
-    $query = "INSERT INTO post VALUES('','".$title."','".$content."','".$mail."')";
+    $query = "INSERT INTO post VALUES('','".$content."','".$title."','".$mail."')";
     //var_dump($query);
     $result = mysqli_query($con,$query);
-
+    return $con->insert_id;
 }
 
 function deletePost($con,$id){
