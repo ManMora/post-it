@@ -38,11 +38,11 @@ function isLoggedIn(){
         }
 
     }else if(isset($_POST['postoperation']) && $_POST['postoperation'] == '2'){
-        if($_POST['mail'] != ""){
-            if(checkEmail($mail)){
+        if($_POST['email'] != ""){
+            if(checkEmail($_POST['email'])){
                 //Mail con formato
                 $con = openDB("manmora.com","team5","team5","team5");
-                $valid = validMail($con, $mail);
+                $valid = validMail($con, $_POST['email']);
                 if( $valid == 0 ){
                     //Email libre 
                     echo "0";

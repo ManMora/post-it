@@ -30,7 +30,7 @@ $(document).ready(function () {
         }
 
     $(".validateMail").focusout(function (){
-        var jqxhr = $.post( "api/postapi.php", {postoperation: '2', mail: $(this).val()})
+        var jqxhr = $.post( "api/postapi.php", {postoperation: '2', email: $(this).val()})
             .done(function(response) {
                 if (response == "0"){
                     document.getElementById("Error").style.fontSize="small";
