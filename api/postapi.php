@@ -16,17 +16,16 @@ function openDB($route,$username,$password,$db){
 
 function isLoggedIn(){
 
-    $con = openDB("localhost","root","","postdb");
-    $mail = $_POST['username'];
-
+    $con = openDB("manmora.com","team5","team5","team5");
+    
     if(isset($_POST['postoperation']) && $_POST['postoperation'] == '1'){
-    if(isset($_POST['username'])){
+    if(isset($_POST['mail'])){
         if(isset($_POST['postid']) && $_POST['postid'] != '' ){
             $id = $_POST['postid'];
             updatePost($con,$id,$_POST['posttitle'],$_POST['postcontent']);
             echo $id;
         }else{
-           echo  createPost($con,$mail,$_POST['posttitle'],$_POST['postcontent']);
+           echo  createPost($con,$_POST['mail'],$_POST['posttitle'],$_POST['postcontent']);
 
             http_response_code(200);
 
@@ -34,13 +33,31 @@ function isLoggedIn(){
 
         }else{
 
-        http_response_code(403);
+        http_response_code(413);
 
         }
 
-    }else{
+    }else if(isset($_POST['postoperation']) && $_POST['postoperation'] == '2'){
+        if($_POST['mail'] != ""){
+            if(checkEmail($mail)){
+                //Mail con formato
+                $con = openDB("manmora.com","team5","team5","team5");
+                $valid = validMail($con, $mail);
+                if( $valid == 0 ){
+                    //Email libre 
+                    echo "0";
+                }else{
+                    //Email ocupado
+                    echo "2";
+                }
+            }else{
+                //Mail sin formato
+                echo "1";
+            }
+        }else{
 
-        var_dump(getAllPosts($con,$mail));
+        }
+    }else{
 
     }
     closeDB($con);
@@ -91,6 +108,16 @@ function getSingle($con,$id){
 
 }
 
+function getName($con, $mail){
+    $query = "SELECT Nombre FROM user WHERE MAIL = '".$mail."' LIMIT 1";
+    $result = mysqli_query($con, $query);
+    while ($row = mysqli_fetch_array($result)){
+        $user['nombre'] = $row['Nombre'];
+        $user['mail'] = $row['Mail'];
+    }
+    return $user['nombre'];
+}
+
 function getAllPosts($con,$mail){
     $posts = array();
 
@@ -99,6 +126,7 @@ function getAllPosts($con,$mail){
     while($row = mysqli_fetch_array($result)) {
           $post['title'] = $row['Title'];
           $post['content'] = $row['Content'];
+          $post['id'] = $row['ID'];
           array_push($posts,$post);
     }
     return $posts;
@@ -107,13 +135,16 @@ function getAllPosts($con,$mail){
 
 function createUser($con, $mail, $name, $password){
     $password = md5($password);
+    
     $query = "INSERT INTO user VALUES('".$name."','".$password."','".$mail."',1)";
     $result = mysqli_query($con, $query);
+    
 }
 
 function deleteUser($con, $mail){
     $query = "UPDATE user SET Active=0 WHERE MAIL = '". $mail ."'";
     $result = mysqli_query($con, $query);
+    
     //var_dump($query);
     return $result;
 }
@@ -133,6 +164,29 @@ function readUser($con, $mail){
         $user['mail'] = $row['Mail'];
     }
     return $user;
+}
+
+function checkEmail($email) {
+        if(preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $email)){
+            list($username,$domain)=split('@',$email);
+            if(!checkdnsrr($domain,'MX')) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+
+function isValid($con, $mail, $password){
+    $query = "SELECT Mail FROM user WHERE MAIL = '".$mail."' AND PASSWORD = '".$password."' LIMIT 1";
+    $result = mysqli_query($con, $query);
+    return $result->num_rows;
+}
+
+function validMail($con, $mail){
+    $query = "SELECT Nombre FROM user WHERE MAIL = '".$mail."' LIMIT 1";
+    $result = mysqli_query($con, $query);
+    return $result->num_rows;
 }
 
 ?>

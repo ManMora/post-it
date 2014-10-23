@@ -1,15 +1,6 @@
 <?php
+    include("api/postapi.php");
     session_start();
-    function checkEmail($email) {
-        if(preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/", $email)){
-            list($username,$domain)=split('@',$email);
-            if(!checkdnsrr($domain,'MX')) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
 
     function logout(){
 
@@ -30,31 +21,49 @@
                 //Valida Password
                 if (strlen($_POST['password']) > 6){
 
-
+                    $con = openDB("manmora.com","team5","team5","team5");
+                   
+                    createUser($con, $_POST['mail'], $_POST['name'], $_POST['password']);
+                    closeDB($con);
+                    header('Location:login.php');
                     //Muestra Post-its
-                    header('Location:home.php');
+                    
                 }else{
                     //Password incorrecto
-                    header('Location:signup.php');
+                    echo 'password';
                 }
             }else{
                 //Email incorrecto
-                header('Location:signup.php');
+                echo 'email';
             }
 
         }else{
             //Datos incompletos
-            header('Location:signup.php');
+            echo 'incompletos';
         }
     }
+
     if((isset($_POST['login'])) && ($_POST['login'] == 'Submit')){
 
-        $user = mysql_real_escape_string($_POST['mail']);
-        $password = mysql_real_escape_string($_POST['password']);
-        //if is in DB
-        $_SESSION['loggedUser'] = $user;
-        //echo $_SESSION['loggedUser'];
-        header('Location:home.php');
+        $mail = $_POST['mail'];
 
+        $password = md5($_POST['password']);
+        //if is in DB
+        $con = openDB("manmora.com","team5","team5","team5");
+        $nombre = getName($con,$mail);
+        
+        $valid = isValid($con, $mail, $password);
+        
+        closeDB($con);
+        if($valid == 1)
+        {
+            $_SESSION['loggedUser'] = $nombre;
+            $_SESSION['mail'] = $mail;
+            //echo $_SESSION['loggedUser'];
+            header('Location:home.php');
+        }else{
+            $_SESSION['invalid'] = true;
+            header('Location:login.php');
+        }
     }
 ?>
